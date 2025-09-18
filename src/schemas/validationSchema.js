@@ -5,45 +5,65 @@ const today = new Date();
 today.setHours(0, 0, 0, 0);
 
 const urlValidator = (value) => {
-  if (!value) return true; // allow empty
-  try {
-    const withProtocol = value.startsWith("http")
-      ? value
-      : `https://${value}`; // default to https if missing
-    const u = new URL(withProtocol);
-    return u.protocol === "http:" || u.protocol === "https:";
-  } catch {
-    return false;
-  }
+    if (!value) return true; // allow empty
+    try {
+        const withProtocol = value.startsWith("http")
+            ? value
+            : `https://${value}`; // default to https if missing
+        const u = new URL(withProtocol);
+        return u.protocol === "http:" || u.protocol === "https:";
+    } catch {
+        return false;
+    }
 };
 
-const dateOrderTest = (startField, endField) => ({
-    name: 'date-order',
-    test: function (value) {
-        const start = value?.[startField];
-        const end = value?.[endField];
-        if (!start || !end) return true;
+const validateStartEndDates = {
+    name: "validate-dates",
+    test: function (obj) {
+        const start = obj?.startDate ? new Date(obj.startDate) : null;
+        const end = obj?.endDate ? new Date(obj.endDate) : null;
 
-        const s = new Date(start);
-        const e = new Date(end);
+        if (!start) return true; // no startDate, skip
 
-        if (isNaN(s) || isNaN(e)) {
+        // Check valid start date
+        if (isNaN(start.getTime())) {
             return this.createError({
-                path: `${this.path}.${endField}`,
-                message: `${startField} and ${endField} must be valid dates`,
+                path: `${this.path}.startDate`,
+                message: "Start date must be a valid date",
             });
         }
 
-        if (s > e) {
+        // Start must be in the past
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (start > today) {
             return this.createError({
-                path: `${this.path}.${endField}`,
-                message: `${startField} must be before or equal to ${endField}`,
+                path: `${this.path}.startDate`,
+                message: "Start date must be in the past",
             });
+        }
+
+        // If end date exists, validate it
+        if (end) {
+            if (isNaN(end.getTime())) {
+                return this.createError({
+                    path: `${this.path}.endDate`,
+                    message: "End date must be a valid date",
+                });
+            }
+
+            if (end < start) {
+                return this.createError({
+                    path: `${this.path}.endDate`,
+                    message: "End date must be after start date",
+                });
+            }
         }
 
         return true;
     },
-});
+};
+
 
 export const cvSchema = yup.object({
     fullName: yup.string().required('Full name is required').trim(),
@@ -84,21 +104,7 @@ export const cvSchema = yup.object({
                     description: yup.string().nullable(),
                     currentlyWorking: yup.boolean().nullable(),
                 })
-                .test({
-                    name: 'start-before-end',
-                    message: 'startDate must be before or equal to endDate',
-                    test: function (obj) {
-                        const s = obj?.startDate;
-                        const e = obj?.endDate;
-                        if (!s || !e) return true;
-                        if (new Date(s) <= new Date(e)) return true;
-
-                        return this.createError({
-                            path: `${this.path}.endDate`,
-                            message: 'Start date must be before or equal to end date',
-                        });
-                    },
-                })
+                .test(validateStartEndDates)
         )
         .nullable(),
 
@@ -115,7 +121,7 @@ export const cvSchema = yup.object({
                     grade: yup.string().nullable(),
                     description: yup.string().nullable(),
                 })
-                .test(dateOrderTest('startDate', 'endDate'))
+                .test(validateStartEndDates)
         )
         .nullable(),
 

@@ -12,6 +12,7 @@ import Navbar from "@/components/common/Navbar";
 import { useGetCvByIdQuery, useUpdateCvMutation } from "@/redux/slices/cv/cvApi";
 import toast from "react-hot-toast";
 import ProtectedRoute from "@/components/common/ProtectedRoute";
+import { normalizeDatesForForm } from "@/utils/dateUtils";
 
 const clone = (v) => (v ? JSON.parse(JSON.stringify(v)) : undefined);
 
@@ -39,43 +40,14 @@ export default function EditCvPage(props) {
             : {},
     });
 
-    // When cv loads, reset form with cv data
     useEffect(() => {
         if (cv) {
-            methods.reset(
-                clone({
-                    ...cv,
-                    projects: cv.projects?.map((p) => ({
-                        ...p,
-                        technologies: Array.isArray(p.technologies)
-                            ? p.technologies.join(", ")
-                            : p.technologies || "",
-                    })),
-                })
-            );
+            methods.reset(normalizeDatesForForm(cv));
         }
-    }, [cv]);
-
-    // Watch form and sync draft
-    useEffect(() => {
-        const sub = methods.watch((vals) => {
-            const normalized = {
-                ...vals,
-                projects: vals.projects?.map((p) =>
-                    p && typeof p.technologies === "string"
-                        ? { ...p, technologies: p.technologies.split(",").map((t) => t.trim()).filter(Boolean) }
-                        : p
-                ),
-            };
-            dispatch(setCvDraft(clone(normalized)));
-        });
-        return () => sub.unsubscribe();
-        // eslint-disable-next-line
-    }, [methods]);
+    }, [cv, methods]);
 
     useEffect(() => {
         return () => {
-            // clear draft when leaving edit page
             dispatch(setCvDraft(null));
         };
     }, [dispatch]);
@@ -138,7 +110,7 @@ export default function EditCvPage(props) {
             dispatch(setCvDraft(null));
             // Reset the form
             methods.reset();
-            router.push("/");
+            router.push('/dashboard');
         } catch (err) {
             toast.error(err?.data?.message || "Failed to update CV. Please try again.");
         }

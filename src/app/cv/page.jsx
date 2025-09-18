@@ -101,24 +101,8 @@ export default function CvCreatePage() {
             toast.success('CV created successfully!');
             dispatch(setCvDraft(null));
             // Reset the form
-            methods.reset({
-                fullName: '',
-                headline: '',
-                email: '',
-                phone: '',
-                website: '',
-                location: '',
-                summary: '',
-                profiles: [],
-                experience: [],
-                education: [],
-                skills: [],
-                languages: [],
-                certifications: [],
-                projects: [],
-                references: [],
-            });
-            router.push('/');
+            methods.reset();
+            router.push('/dashboard');
         } catch (err) {
             if (err?.data?.message?.includes('already exists')) {
                 toast.error('A resume with this file name already exists.');

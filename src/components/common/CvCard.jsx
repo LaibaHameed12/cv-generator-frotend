@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MoreVertical, Edit3, Trash2, FileText } from 'lucide-react';
+import CvDownloadButtons from '../CvDownloadButtons';
 
-const CvCard = ({ cv, router, setRenaming, handleDelete }) => {
+const CvCard = ({ cv, router, setRenaming, handleDeleteClick }) => {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef(null);
 
@@ -16,7 +17,7 @@ const CvCard = ({ cv, router, setRenaming, handleDelete }) => {
         return () => document.removeEventListener('click', onDocClick);
     }, []);
 
-    const onOpen = (e) => {
+    const onEdit = (e) => {
         e.stopPropagation();
         setIsOpen(false);
         router.push(`/cv/edit/${cv._id}`);
@@ -28,10 +29,10 @@ const CvCard = ({ cv, router, setRenaming, handleDelete }) => {
         setRenaming(cv);
     };
 
-    const onDelete = async (e) => {
+    const onDelete = (e) => {
         e.stopPropagation();
         setIsOpen(false);
-        await handleDelete(cv._id);
+        handleDeleteClick(cv); // instead of calling handleDelete directly
     };
 
     return (
@@ -80,10 +81,10 @@ const CvCard = ({ cv, router, setRenaming, handleDelete }) => {
                         {isOpen && (
                             <div className="absolute z-50 right-0 mt-2 bg-gray-800 border border-gray-700 rounded shadow-lg w-36">
                                 <button
-                                    onClick={onOpen}
+                                    onClick={onEdit}
                                     className="cursor-pointer flex items-center w-full px-3 py-2 text-sm hover:bg-gray-700 text-left"
                                 >
-                                    <FileText className="w-4 h-4 mr-2" /> Open
+                                    <FileText className="w-4 h-4 mr-2" /> Edit
                                 </button>
                                 <button
                                     onClick={onRename}
@@ -97,6 +98,7 @@ const CvCard = ({ cv, router, setRenaming, handleDelete }) => {
                                 >
                                     <Trash2 className="w-4 h-4 mr-2" /> Delete
                                 </button>
+                                <CvDownloadButtons cvId={cv._id} fileName={cv.fileName} />
                             </div>
                         )}
                     </div>

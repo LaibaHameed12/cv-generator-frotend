@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import CvCard from '../common/CvCard';
 import FileNameModal from '../FileNameModal';
 import toast from 'react-hot-toast';
+import ConfirmationModal from '../ConfirmationModal';
 
 const ResumeDashboard = () => {
     const { data: cvs, isLoading } = useGetCvsQuery();
@@ -20,18 +21,27 @@ const ResumeDashboard = () => {
     const router = useRouter();
 
     const [renaming, setRenaming] = useState(null); // stores cv being renamed
+    const [deleteTarget, setDeleteTarget] = useState(null); // stores the CV to delete
 
-    const handleDelete = async (id) => {
-        if (confirm('Are you sure you want to delete this resume?')) {
-            try {
-                await deleteCv(id).unwrap();
-                toast.success('Resume deleted successfully');
-            } catch (err) {
-                console.error(err);
-                toast.error('Failed to delete resume');
-            }
+
+    const handleDeleteClick = (cv) => {
+        setDeleteTarget(cv);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!deleteTarget) return;
+        try {
+            await deleteCv(deleteTarget._id).unwrap();
+            toast.success('Resume deleted successfully');
+        } catch (err) {
+            console.error(err);
+            toast.error('Failed to delete resume');
+        } finally {
+            setDeleteTarget(null); // close modal
         }
     };
+
+    const handleCancelDelete = () => setDeleteTarget(null);
 
     const handleRename = async (cv, fileName) => {
         try {
@@ -81,7 +91,7 @@ const ResumeDashboard = () => {
                                     cv={cv}
                                     router={router}
                                     setRenaming={setRenaming}
-                                    handleDelete={handleDelete}
+                                    handleDeleteClick={handleDeleteClick}
                                 />
                             ))}
                         </div>
@@ -98,6 +108,13 @@ const ResumeDashboard = () => {
                 />
             )}
 
+            {deleteTarget && (
+                <ConfirmationModal
+                    onConfirm={handleConfirmDelete}
+                    onClose={handleCancelDelete}
+                    isLoading={deleteCv.isLoading}
+                />
+            )}
 
         </div>
     );

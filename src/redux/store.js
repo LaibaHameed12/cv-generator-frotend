@@ -18,7 +18,7 @@ export const store = configureStore({
         [cvApi.reducerPath]: cvApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().concat(
+        getDefaultMiddleware({serializableCheck: false,}).concat(
             authApi.middleware,
             usersApi.middleware,
             cvApi.middleware,

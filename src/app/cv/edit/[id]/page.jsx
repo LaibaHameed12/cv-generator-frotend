@@ -72,9 +72,47 @@ export default function EditCvPage(props) {
         // eslint-disable-next-line
     }, [methods]);
 
+    useEffect(() => {
+        return () => {
+            // clear draft when leaving edit page
+            dispatch(setCvDraft(null));
+        };
+    }, [dispatch]);
+
+
+    // Helper to convert string or Date into ISO
+    const toISO = (value) => {
+        if (!value) return null;
+        const d = new Date(value);
+        return isNaN(d.getTime()) ? null : d.toISOString();
+    };
+
+    // Recursive cleanup
+    const stripSystemFieldsAndNormalize = (obj) => {
+        if (Array.isArray(obj)) {
+            return obj.map(stripSystemFieldsAndNormalize);
+        }
+        if (obj && typeof obj === "object") {
+            const newObj = {};
+            for (let key in obj) {
+                if (["_id", "__v", "createdAt", "updatedAt", "user"].includes(key)) continue;
+
+                // Normalize date fields
+                if (["startDate", "endDate", "date"].includes(key)) {
+                    newObj[key] = toISO(obj[key]);
+                } else {
+                    newObj[key] = stripSystemFieldsAndNormalize(obj[key]);
+                }
+            }
+            return newObj;
+        }
+        return obj;
+    };
+
     const sanitizeCvForUpdate = (cvData) => {
         const { _id, user, createdAt, updatedAt, __v, fileName, ...editable } = cvData;
-        // Convert technologies back to array
+
+        // Normalize projects.technologies
         editable.projects = editable.projects?.map((p) => {
             if (!p) return p;
             return {
@@ -84,8 +122,11 @@ export default function EditCvPage(props) {
                     : p.technologies || [],
             };
         });
-        return editable;
+
+        return stripSystemFieldsAndNormalize(editable);
     };
+
+
 
 
     const onSubmit = async (data) => {
@@ -93,6 +134,9 @@ export default function EditCvPage(props) {
             const payload = sanitizeCvForUpdate(data);
             await updateCv({ id: cvId, ...payload }).unwrap();
             toast.success('CV updated successfully!');
+            dispatch(setCvDraft(null));
+            // Reset the form
+            methods.reset();
             router.push("/");
         } catch (err) {
             toast.error(err?.data?.message || "Failed to update CV. Please try again.");
@@ -121,7 +165,7 @@ export default function EditCvPage(props) {
                         </form>
                     </FormProvider>
                 </div>
-                <div className="flex-1 hidden md:block">
+                <div className="flex-1 py-8 bg-white min-h-[800px] overflow-auto max-h-screen my-scroll-container">
                     <CvPreview cv={methods.watch()} />
                 </div>
             </div>

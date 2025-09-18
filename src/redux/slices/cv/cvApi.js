@@ -51,6 +51,24 @@ export const cvApi = createApi({
         checkFileName: builder.query({
             query: (fileName) => `check-filename/${encodeURIComponent(fileName)}`,
         }),
+        downloadCvPdf: builder.query({
+            query: (id) => ({
+                url: `${id}/export/pdf`,
+                responseHandler: async (response) => {
+                    const blob = await response.blob();
+                    return blob;
+                },
+            }),
+        }),
+        downloadCvDocx: builder.query({
+            query: (id) => ({
+                url: `${id}/export/docx`,
+                responseHandler: async (response) => {
+                    const blob = await response.blob();
+                    return blob;
+                },
+            }),
+        }),
     }),
 });
 
@@ -62,4 +80,6 @@ export const {
     useDeleteCvMutation,
     useCheckFileNameQuery,
     useLazyCheckFileNameQuery,
+    useLazyDownloadCvDocxQuery,
+    useLazyDownloadCvPdfQuery,
 } = cvApi;

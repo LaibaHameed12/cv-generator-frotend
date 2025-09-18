@@ -5,13 +5,16 @@ const today = new Date();
 today.setHours(0, 0, 0, 0);
 
 const urlValidator = (value) => {
-    if (!value) return true; // allow empty (optional)
-    try {
-        const u = new URL(value);
-        return u.protocol === 'http:' || u.protocol === 'https:';
-    } catch {
-        return false;
-    }
+  if (!value) return true; // allow empty
+  try {
+    const withProtocol = value.startsWith("http")
+      ? value
+      : `https://${value}`; // default to https if missing
+    const u = new URL(withProtocol);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
 };
 
 const dateOrderTest = (startField, endField) => ({

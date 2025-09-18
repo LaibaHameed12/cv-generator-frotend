@@ -68,6 +68,10 @@ export default function CvCreatePage() {
         if (draftFromStore) methods.reset(clone(draftFromStore));
     }, [draftFromStore, methods]);
 
+    useEffect(() => {
+        dispatch(setCvDraft(null));
+    }, [dispatch]);
+
     const handleSubmitForm = (data) => {
         setPendingData(data);
         setModalOpen(true);
@@ -95,6 +99,24 @@ export default function CvCreatePage() {
             await createCv(payload).unwrap();
             toast.success('CV created successfully!');
             dispatch(setCvDraft(null));
+            // Reset the form
+            methods.reset({
+                fullName: '',
+                headline: '',
+                email: '',
+                phone: '',
+                website: '',
+                location: '',
+                summary: '',
+                profiles: [],
+                experience: [],
+                education: [],
+                skills: [],
+                languages: [],
+                certifications: [],
+                projects: [],
+                references: [],
+            });
             router.push('/');
         } catch (err) {
             if (err?.data?.message?.includes('already exists')) {
@@ -130,7 +152,7 @@ export default function CvCreatePage() {
                     </FormProvider>
                 </div>
 
-                <div className="w-full lg:w-1/2">
+                <div className="w-full lg:w-1/2 bg-white py-8 min-h-[800px] overflow-auto max-h-screen my-scroll-container">
                     <CvPreview cv={methods.getValues()} />
                 </div>
 

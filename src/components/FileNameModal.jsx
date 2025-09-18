@@ -24,15 +24,16 @@ export default function FileNameModal({ onConfirm, onClose, currentName }) {
 
     const onSubmit = async ({ fileName }) => {
         const trimmed = fileName.trim();
+        let safeFileName = trimmed.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_-]/g, '');
 
         // If user didn’t change the name, just close
-        if (trimmed === currentName) {
+        if (safeFileName === currentName) {
             onClose();
             return;
         }
 
         try {
-            const { exists } = await checkFileName(trimmed).unwrap();
+            const { exists } = await checkFileName(safeFileName).unwrap();
             if (exists) {
                 setError('fileName', {
                     message: 'A resume with this name already exists',
@@ -41,7 +42,7 @@ export default function FileNameModal({ onConfirm, onClose, currentName }) {
             }
             // Try to confirm, catch backend duplicate error
             try {
-                await onConfirm(trimmed);
+                await onConfirm(safeFileName);
             } catch (err) {
                 if (err?.data?.message?.includes('already exists')) {
                     setError('fileName', {

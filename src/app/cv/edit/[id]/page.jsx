@@ -11,6 +11,7 @@ import cvSchema from "@/schemas/validationSchema";
 import Navbar from "@/components/common/Navbar";
 import { useGetCvByIdQuery, useUpdateCvMutation } from "@/redux/slices/cv/cvApi";
 import toast from "react-hot-toast";
+import ProtectedRoute from "@/components/common/ProtectedRoute";
 
 const clone = (v) => (v ? JSON.parse(JSON.stringify(v)) : undefined);
 
@@ -148,27 +149,29 @@ export default function EditCvPage(props) {
     if (isError || !cv) return <div className="text-center text-red-400 mt-10">CV not found.</div>;
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white">
-            <Navbar />
-            <div className="flex flex-col md:flex-row max-w-7xl mx-auto py-8 gap-8">
-                <div className="flex-1">
-                    <FormProvider {...methods}>
-                        <form onSubmit={methods.handleSubmit(onSubmit)}>
-                            <CvForm isEdit />
-                            <button
-                                type="submit"
-                                className="cursor-pointer w-full mt-8 py-3 px-6 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold text-lg transition-colors disabled:opacity-60"
-                                disabled={isUpdating}
-                            >
-                                {isUpdating ? "Updating..." : "Update CV"}
-                            </button>
-                        </form>
-                    </FormProvider>
-                </div>
-                <div className="flex-1 py-8 bg-white min-h-[800px] overflow-auto max-h-screen my-scroll-container">
-                    <CvPreview cv={methods.watch()} />
+        <ProtectedRoute authRequired={true}>
+            <div className="min-h-screen bg-gray-900 text-white">
+                <Navbar />
+                <div className="flex flex-col md:flex-row max-w-7xl mx-auto py-8 gap-8">
+                    <div className="flex-1">
+                        <FormProvider {...methods}>
+                            <form onSubmit={methods.handleSubmit(onSubmit)}>
+                                <CvForm isEdit />
+                                <button
+                                    type="submit"
+                                    className="cursor-pointer w-full mt-8 py-3 px-6 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold text-lg transition-colors disabled:opacity-60"
+                                    disabled={isUpdating}
+                                >
+                                    {isUpdating ? "Updating..." : "Update CV"}
+                                </button>
+                            </form>
+                        </FormProvider>
+                    </div>
+                    <div className="flex-1 py-8 bg-white min-h-[800px] overflow-auto max-h-screen my-scroll-container">
+                        <CvPreview cv={methods.watch()} />
+                    </div>
                 </div>
             </div>
-        </div>
+        </ProtectedRoute>
     );
 }

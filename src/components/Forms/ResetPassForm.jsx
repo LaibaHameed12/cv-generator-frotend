@@ -42,13 +42,13 @@ export default function ResetPasswordForm() {
 
     if (!token) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-white text-black">
-                <div className="w-full max-w-md p-8 border border-black/10 rounded text-center">
+            <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+                <div className="w-full max-w-md p-8 border border-gray-700 rounded text-center">
                     <h2 className="text-2xl font-bold mb-4">Invalid Reset Link</h2>
-                    <p className="text-gray-600 mb-4">This password reset link is invalid or has expired.</p>
+                    <p className="text-gray-400 mb-4">This password reset link is invalid or has expired.</p>
                     <button
                         onClick={() => router.push('/forgot-password')}
-                        className="underline"
+                        className="cursor-pointer underline text-blue-400 hover:text-blue-300"
                     >
                         Request a new reset link
                     </button>
@@ -58,33 +58,38 @@ export default function ResetPasswordForm() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-white text-black">
-            <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md p-8 border border-black/10 rounded">
+        <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+            <div className="w-full max-w-md p-8 border border-gray-700 rounded" onSubmit={handleSubmit(onSubmit)}>
                 <h2 className="text-2xl font-bold mb-6 text-center">Reset Password</h2>
 
                 <div className="mb-4">
-                    <label>New Password</label>
+                    <label className="block mb-2">New Password</label>
                     <input
                         type="password"
                         {...register('password')}
                         placeholder='Enter new password'
-                        className="w-full p-2 border border-black/20 rounded mt-1"
+                        className="w-full p-2 border border-gray-600 bg-gray-800 text-white rounded focus:border-blue-500 focus:outline-none mt-1"
                     />
                     {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
                 </div>
 
                 <div className="mb-4">
-                    <label>Confirm Password</label>
+                    <label className="block mb-2">Confirm Password</label>
                     <input
                         type="password"
                         {...register('confirmPassword')}
                         placeholder='Confirm new password'
-                        className="w-full p-2 border border-black/20 rounded mt-1"
+                        className="w-full p-2 border border-gray-600 bg-gray-800 text-white rounded focus:border-blue-500 focus:outline-none mt-1"
                     />
                     {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>}
                 </div>
 
-                <button className="w-full bg-black text-white py-2 mt-4 rounded cursor-pointer flex items-center justify-center" disabled={isLoading} type="submit">
+                <button
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 mt-4 rounded cursor-pointer flex items-center justify-center transition-colors"
+                    disabled={isLoading}
+                    type="submit"
+                    onClick={handleSubmit(onSubmit)}
+                >
                     {isLoading ? <Loader2 className='animate-spin' /> : "Reset Password"}
                 </button>
 
@@ -92,12 +97,12 @@ export default function ResetPasswordForm() {
                     Remember your password? <button
                         type="button"
                         onClick={() => router.push('/login')}
-                        className="underline cursor-pointer"
+                        className="cursor-pointer underline cursor-pointer text-blue-400 hover:text-blue-300"
                     >
                         Back to Login
                     </button>
                 </p>
-            </form>
+            </div>
         </div>
     );
 }

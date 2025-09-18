@@ -13,6 +13,7 @@ import FileNameModal from '@/components/FileNameModal';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/common/Navbar';
 import toast from 'react-hot-toast';
+import ProtectedRoute from '@/components/common/ProtectedRoute';
 
 const clone = (v) => (v ? JSON.parse(JSON.stringify(v)) : undefined);
 
@@ -130,7 +131,7 @@ export default function CvCreatePage() {
     };
 
     return (
-        <>
+        <ProtectedRoute authRequired={true}>
             <Navbar />
             <div className="flex flex-col lg:flex-row gap-6 p-6 bg-gray-900">
                 <div className="flex-1">
@@ -164,6 +165,6 @@ export default function CvCreatePage() {
                     />
                 )}
             </div>
-        </>
+        </ProtectedRoute>
     );
 }

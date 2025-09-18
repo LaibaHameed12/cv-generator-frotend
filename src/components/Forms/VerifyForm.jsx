@@ -42,34 +42,39 @@ export default function VerifyForm() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-white text-black">
-            <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md p-8 border border-black/10 rounded">
+        <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+            <div className="w-full max-w-md p-8 border border-gray-700 rounded" onSubmit={handleSubmit(onSubmit)}>
                 <h2 className="text-2xl font-bold mb-6 text-center">Verify Account</h2>
 
                 <div className="mb-4">
-                    <label>Verification Code</label>
+                    <label className="block mb-2">Verification Code</label>
                     <input
                         {...register('code')}
                         placeholder='Enter 6 digit code'
-                        className="w-full p-2 border border-black/20 rounded mt-1"
+                        className="w-full p-2 border border-gray-600 bg-gray-800 text-white rounded focus:border-blue-500 focus:outline-none mt-1"
                     />
                     {errors.code && <p className="text-red-500 text-sm">{errors.code.message}</p>}
                 </div>
 
-                <button className="w-full bg-black text-white py-2 mt-4 rounded cursor-pointer flex items-center justify-center" disabled={isLoading} type="submit">{
-                    isLoading ? <Loader2 className=' animate-spin' /> : "Verify"
-                }</button>
+                <button
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 mt-4 rounded cursor-pointer flex items-center justify-center transition-colors"
+                    disabled={isLoading}
+                    type="submit"
+                    onClick={handleSubmit(onSubmit)}
+                >
+                    {isLoading ? <Loader2 className='animate-spin' /> : "Verify"}
+                </button>
 
                 <p className="mt-4 text-center flex items-center justify-center gap-2">
                     Didn't receive code? <button
                         type="button"
                         onClick={handleResend}
-                        className="underline ml-1"
+                        className="cursor-pointer underline ml-1 text-blue-400 hover:text-blue-300"
                     >
                         Resend
                     </button>
                 </p>
-            </form>
+            </div>
         </div>
     );
 }
